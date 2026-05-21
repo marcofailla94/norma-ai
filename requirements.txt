@@ -1,0 +1,13 @@
+streamlit
+pymupdf
+pillow
+pytesseract
+faiss-cpu
+sentence-transformers
+torch
+numpy
+accelerate
+transformers
+openai
+rank-bm25
+opencv-python-headless
