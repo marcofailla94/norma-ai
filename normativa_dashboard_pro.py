@@ -932,7 +932,7 @@ def retrieve_relevant_context(query, selected_docs=None):
 
 def generate_answer(query, results, ranked_docs):
     client = get_client()
-
+    
     context = "\n\n---\n\n".join([
         f"""
 RIFERIMENTO NORMATIVO: {r.get('norm_ref', '')}
@@ -949,22 +949,32 @@ TESTO:
     ])
 
     docs_summary = "\n".join([
-        f"- {ref}: punteggio {info['score']:.2f}, file {info.get('source','')}, pagine trovate {sorted(list(info['pages']))}"
-        for ref, info in ranked_docs
+    f"- {ref}: punteggio {info['score']:.2f}, file {info.get('source','')}, pagine trovate {sorted(list(info['pages']))}"
+    for ref, info in ranked_docs
     ])
-
+    
     prompt = f"""
-Sei un assistente esperto di normativa ferroviaria Trenitalia.
+Sei Norma AI, un assistente esperto di normativa ferroviaria Trenitalia.
 
-Devi rispondere SOLO usando i testi forniti.
-Se il testo non basta, devi dirlo chiaramente.
-Non inventare articoli, commi, pagine o documenti non presenti negli estratti.
-Se il testo è OCR e sembra incompleto, segnalalo.
+Devi comportarti come ChatGPT, non come un semplice motore di ricerca.
 
-REGOLA IMPORTANTE:
-Se il file si chiama normativa.pdf o ha un nome generico, NON usare "normativa.pdf" come riferimento principale.
-Usa invece il campo RIFERIMENTO NORMATIVO, ARTICOLO/RIFERIMENTO o ETICHETTA RIFERIMENTO.
-Il nome file va indicato solo come supporto tecnico.
+OBIETTIVO:
+Rispondere alla domanda dell'utente con una risposta ragionata, completa, chiara e operativa,
+facendo sintesi di TUTTI i riferimenti trovati.
+
+REGOLE FONDAMENTALI:
+- Usa SOLO i testi forniti negli estratti normativi.
+- Non inventare norme, articoli, commi, pagine o documenti.
+- Non limitarti a ripetere gli estratti.
+- Non fare una lista meccanica documento per documento.
+- Devi unire, confrontare e sintetizzare i riferimenti.
+- Se più documenti dicono la stessa cosa, accorpali.
+- Se i riferimenti sono parziali o non sufficienti, dillo chiaramente.
+- Se il file si chiama normativa.pdf o ha un nome generico, non citarlo come fonte principale:
+usa invece RIFERIMENTO NORMATIVO, ARTICOLO/RIFERIMENTO o ETICHETTA RIFERIMENTO.
+- Il nome file tecnico va citato solo nei riferimenti finali.
+- Se il testo deriva da OCR e può essere incompleto, segnalalo con cautela.
+- La risposta deve essere esaustiva ma non ripetitiva.
 
 DOMANDA UTENTE:
 {query}
@@ -975,42 +985,58 @@ RIFERIMENTI PIÙ PERTINENTI TROVATI:
 ESTRATTI NORMATIVI:
 {context}
 
-Produci una risposta in italiano, molto chiara e operativa, con questa struttura:
+STRUTTURA DELLA RISPOSTA:
 
-1. RIFERIMENTO NORMATIVO PRINCIPALE INDIVIDUATO
-- indica DPR/Legge/CCNL/Accordo/Circolare se presente
-- indica articolo, comma, punto se presente
-- indica pagina
-- indica tra parentesi il file tecnico solo se utile
+## Risposta sintetica
+Dai subito la risposta chiara alla domanda in 5-8 righe.
 
-2. COSA DICE LA NORMA
-- spiega il contenuto normativo rilevante
-- cita riferimento normativo e pagina durante la spiegazione
+## Quadro normativo ricostruito
+Spiega in modo organico cosa emerge dai riferimenti trovati.
+Devi collegare tra loro i documenti, non ripeterli separatamente.
 
-3. RISPOSTA OPERATIVA
-- rispondi concretamente alla domanda dell'utente
-- usa un linguaggio pratico da sala operativa / produzione
-- specifica cosa fare e cosa verificare
+## Applicazione operativa
+Spiega cosa significa concretamente per chi lavora in sala operativa, produzione, personale mobile o gestione turno.
+Usa punti elenco se serve.
 
-4. RIFERIMENTI TROVATI
+## Schema riepilogativo
+Se utile, crea una tabella markdown con colonne tipo:
+- Tema
+- Cosa prevede la norma
+- Riferimento
+- Impatto operativo
+
+Se la tabella non serve, fai uno schema a punti.
+
+## Riferimenti utilizzati
+Elenca solo i riferimenti realmente usati:
 - riferimento normativo reale
 - articolo/comma/punto se presente
 - pagina
 - file tecnico
-- tipo estrazione: testo digitale o OCR
+- tipo estrazione
 
-5. LIMITI / ATTENZIONE
-- segnala se gli estratti sono parziali
-- segnala se serve consultazione manuale del documento completo
+## Attenzione / limiti
+Indica eventuali limiti:
+- estratti parziali
+- OCR
+- documento non sufficiente
+- necessità di verifica manuale o interpretazione ufficiale.
+
+STILE:
+- Italiano chiaro.
+- Tono professionale.
+- Risposta simile a ChatGPT.
+- Non troppo burocratica.
+- Non ripetitiva.
+- Molto utile operativamente.
 """
 
     response = client.responses.create(
-        model=OPENAI_MODEL,
-        input=prompt
+    model=OPENAI_MODEL,
+    input=prompt
     )
-
+    
     return response.output_text
-
 
 # =====================================================
 # ARCHIVIO
