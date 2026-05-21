@@ -26,14 +26,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tessera
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PDF_FOLDER = os.path.join(BASE_DIR, "pdf_normativa")
-st.write("BASE_DIR:", BASE_DIR)
-st.write("PDF_FOLDER:", PDF_FOLDER)
 
-if os.path.exists(PDF_FOLDER):
-    st.write("Cartella trovata")
-    st.write("Contenuto:", os.listdir(PDF_FOLDER)[:10])
-else:
-    st.write("Cartella NON trovata")
 
 CHUNK_INDEX_FILE = "indice_chunk.faiss"
 CHUNK_META_FILE = "metadata_chunk.pkl"
