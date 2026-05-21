@@ -25,7 +25,14 @@ from openai import OpenAI
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 PDF_FOLDER = os.path.join(BASE_DIR, "pdf_normativa")
+
+CHUNK_INDEX_FILE = os.path.join(BASE_DIR, "indice_chunk.faiss")
+CHUNK_META_FILE = os.path.join(BASE_DIR, "metadata_chunk.pkl")
+
+DOC_INDEX_FILE = os.path.join(BASE_DIR, "indice_documenti.faiss")
+DOC_META_FILE = os.path.join(BASE_DIR, "metadata_documenti.pkl")
 
 
 CHUNK_INDEX_FILE = "indice_chunk.faiss"
